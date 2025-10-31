@@ -1,0 +1,76 @@
+# Python
+venv/
+env/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data files (IMPORTANT - these are huge!)
+*.csv
+*.zip
+*.pkl
+*.h5
+*.hdf5
+*.parquet
+*.feather
+*.json.gz
+*.tar.gz
+
+# Model files (these get large)
+models/*.pkl
+*.model
+*.pt
+*.pth
+*.onnx
+distilbert_results/
+logs/
+
+# Node.js / React
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+.cache/
+.parcel-cache/
+.vite/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Render/Deployment
+.render/
