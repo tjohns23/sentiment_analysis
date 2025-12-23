@@ -1,9 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import numpy as np
 import re
+import os
+from pathlib import Path
 from typing import List, Optional
 
 app = FastAPI(title="Sentiment Analysis API")
@@ -18,16 +20,25 @@ app.add_middleware(
 )
 
 # Load trained model and vectorizer
-# Paths relative to backend folder
+BASE_DIR = Path(__file__).resolve().parent
 try:
-    model = joblib.load("models/svm_model.pkl")
-    vectorizer = joblib.load("models/tfidf_vectorizer.pkl")
+    model = joblib.load(BASE_DIR / "models" / "svm_model.pkl")
+    vectorizer = joblib.load(BASE_DIR / "models" / "tfidf_vectorizer.pkl")
     print("Model and vectorizer loaded successfully")
 except Exception as e:
     print(f"Error loading model: {e}")
-    print("Make sure you're running the API from the backend folder")
     model = None
     vectorizer = None
+
+
+# API Key authentication
+API_KEY = os.getenv("API_KEY", "12345678")
+
+def verify_api_key(x_api_key: str = Header(...)):
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
+    return x_api_key
+
 
 def clean_text(text):
     """
@@ -74,7 +85,10 @@ def read_root():
     }
 
 @app.post("/predict", response_model=SentimentResponse)
-def predict_sentiment(input_data: TextInput):
+def predict_sentiment(
+    input_data: TextInput,
+    api_key: str = Depends(verify_api_key)
+):
     """
     Predict sentiment for a single text
     
@@ -130,7 +144,10 @@ def predict_sentiment(input_data: TextInput):
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 @app.post("/predict/batch")
-def predict_batch(input_data: BatchTextInput):
+def predict_batch(
+    input_data: BatchTextInput,
+    api_key: str = Depends(verify_api_key)
+):
     """
     Predict sentiment for multiple texts
     
@@ -214,7 +231,3 @@ def health_check():
         "model_loaded": model is not None,
         "vectorizer_loaded": vectorizer is not None
     }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
